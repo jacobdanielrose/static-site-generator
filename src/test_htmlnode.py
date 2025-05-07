@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_to_html(self):
@@ -61,3 +61,52 @@ class TestLeafNode(unittest.TestCase):
 
         node3 = LeafNode("span", "Inline text")
         self.assertEqual(node3.to_html(), "<span>Inline text</span>")
+
+class TestParentNode(unittest.TestCase):
+    def test_to_html(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_many_children(self):
+        node = ParentNode(
+            "p",
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        )
+        self.assertEqual(node.to_html(),"<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_to_html_missing_tag(self):
+        node = ParentNode(None, [LeafNode("b", "Bold text")])
+        with self.assertRaisesRegex(ValueError, "ParentNode must have a tag"):
+            node.to_html()
+
+    def test_to_html_missing_children(self):
+        node = ParentNode("p", None)
+        with self.assertRaisesRegex(ValueError, "ParentNode must have a child"):
+            node.to_html()
+
+    def test_to_html_empty_child(self):
+        node = ParentNode("p", [])
+        self.assertEqual(node.to_html(), "<p></p>")
+
+    def test_to_html_with_children_and_props(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node], {"class": "container", "id": "main"})
+        self.assertEqual(
+            parent_node.to_html(),
+            '<div class="container" id="main"><span>child</span></div>'
+        )
