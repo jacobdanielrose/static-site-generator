@@ -1,6 +1,6 @@
 import unittest
 
-from inline import split_nodes_delimiter
+from inline import extract_markdown_images, extract_markdown_links, split_nodes_delimiter
 from textnode import TextNode, TextType
 
 class TestInline(unittest.TestCase):
@@ -49,3 +49,54 @@ class TestInline(unittest.TestCase):
               TextNode(" word", TextType.TEXT),
         ]
         self.assertEqual(final_nodes, expected_result)
+
+    def test_extract_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        expected_result = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")
+        ]
+        self.assertEqual(extract_markdown_images(text), expected_result)
+
+    def test_extract_markdown_images_empty(self):
+        text = "![]()"
+        expected_result = [("", "")]
+        self.assertEqual(extract_markdown_images(text), expected_result)
+
+    def test_extract_markdown_images_nested(self):
+        text = "![outer ![inner](inner-url)](outer-url)"
+        expected_result = [("inner", "inner-url")]
+        self.assertEqual(extract_markdown_images(text), expected_result)
+
+    def test_extract_markdown_images_proper_negative_lookbehind(self):
+        text = "Look at this![link](url)"
+        expected_result = [("link", "url")]
+        self.assertEqual(extract_markdown_images(text), expected_result)
+
+    def test_extract_markdown_images_special_characters(self):
+        text = "![A photo with spaces and special #characters](https://example.com/my%20image%20file%23v2.png)"
+        expected_result = [("A photo with spaces and special #characters", "https://example.com/my%20image%20file%23v2.png")]
+        self.assertEqual(extract_markdown_images(text), expected_result)
+
+    def test_extract_markdown_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        expected_result = [
+            ("to boot dev", "https://www.boot.dev"),
+            ("to youtube", "https://www.youtube.com/@bootdotdev")
+        ]
+        self.assertEqual(extract_markdown_links(text), expected_result)
+
+    def test_extract_markdown_links_special_characters(self):
+        text = "[A photo with spaces and special #characters](https://example.com/my%20path%20test%23)"
+        expected_result = [("A photo with spaces and special #characters", "https://example.com/my%20path%20test%23")]
+        self.assertEqual(extract_markdown_links(text), expected_result)
+
+    def test_extract_markdown_links_nested(self):
+        text = "[outer [inner](inner-url)](outer-url)"
+        expected_result = [("inner", "inner-url")]
+        self.assertEqual(extract_markdown_links(text), expected_result)
+
+    def test_extract_markdown_links_empty(self):
+        text = "[]()"
+        expected_result = [("", "")]
+        self.assertEqual(extract_markdown_links(text), expected_result)
