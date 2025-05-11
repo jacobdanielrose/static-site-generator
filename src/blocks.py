@@ -1,4 +1,3 @@
-import re
 from enum import Enum
 
 class BlockType(Enum):
@@ -19,6 +18,8 @@ def block_to_blocktype(block) -> BlockType:
     is_quote, is_unordered_list, is_ordered_list =  True, True, True
     lines = block.split("\n")
 
+    list_seperator, is_unordered_list = get_list_seperator(block)
+
     # code block check
     if len(lines[0]) >= 3 and len(lines[-1])>= 3 and lines[0][:3] == "```" and lines[len(lines)-1][-3:] == "```":
         return BlockType.CODE
@@ -37,7 +38,7 @@ def block_to_blocktype(block) -> BlockType:
         # bool checks
         if length > 0 and line[0] != ">":
             is_quote = False
-        if not line.startswith("- "):
+        if not line.startswith(list_seperator):
             is_unordered_list = False
         if not line.startswith(f"{i+1}. "):
             is_ordered_list = False
@@ -50,3 +51,18 @@ def block_to_blocktype(block) -> BlockType:
         return BlockType.ORDERED_LIST
     else:
         return BlockType.PARAGRAPH
+
+def get_list_seperator(block):
+    lines = block.split("\n")
+    for line in lines:
+        if not line:
+            continue
+        else:
+            if line.startswith("-"):
+                return "- ", True
+            if line.startswith("*"):
+                return "* ", True
+            if line.startswith("+"):
+                return "+ ", True
+            return "", False
+    return "", False
