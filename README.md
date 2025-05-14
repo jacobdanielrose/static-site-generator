@@ -42,9 +42,9 @@ static-site-generator/
   git clone https://github.com/jacobdanielrose/static-site-generator.git
   cd static-site-generator
   ```
-2. Add your Markdown files to the content/ directory.
+2. Add your Markdown files to the `content/` directory.
 3. Customize the template.html file to define your site's layout.
-4. (Optional) Add any CSS, JS, or images to the static/ folder.
+4. (Optional) Add any CSS, JS, or images to the `static/` folder.
 
 ## 🔨 Build the Site
 
