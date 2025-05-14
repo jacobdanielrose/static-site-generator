@@ -1,30 +1,34 @@
 import shutil
 from generate_page import copy_files, generate_pages_recursive
 from pathlib import Path
-
+import sys
 
 def main():
+    if len(sys.argv) > 1:
+        base_path = Path(sys.argv[1])
+    else:
+        base_path = Path("/")
+
     cwd = Path.cwd()
-    public_dir = cwd / "public"
+    docs_dir = cwd / "docs"
     static_dir = cwd / "static"
     template_path = cwd / "template.html"
     content_path = cwd / "content"
 
     # Clean up public directory
-    if public_dir.exists():
-        if public_dir.is_dir():
-            shutil.rmtree(public_dir)
+    if docs_dir.exists():
+        if docs_dir.is_dir():
+            shutil.rmtree(docs_dir)
         else:
             # in case a public file is created instead of a directory
-            public_dir.unlink()
+            docs_dir.unlink()
 
     # Create the public directory
-    public_dir.mkdir(parents=True, exist_ok=True)
+    docs_dir.mkdir(parents=True, exist_ok=True)
 
+    copy_files(static_dir, docs_dir)
 
-    copy_files(static_dir, public_dir)
-
-    generate_pages_recursive(content_path, template_path, public_dir)
+    generate_pages_recursive(content_path, template_path, docs_dir, base_path)
 
 if __name__ == "__main__":
     main()
