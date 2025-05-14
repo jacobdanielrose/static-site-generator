@@ -1,7 +1,7 @@
 from enum import Enum
 from htmlnode import HTMLNode, ParentNode, LeafNode
 from inline import text_to_textnodes
-from textnode import TextNode, text_node_to_html_node
+from textnode import text_node_to_html_node
 
 class BlockType(Enum):
     """Represents the type of formatting required for a given block of markdown text"""
