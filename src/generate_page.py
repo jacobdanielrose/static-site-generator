@@ -12,7 +12,7 @@ def extract_title(markdown: str) -> str:
             return line.lstrip("#").strip()
     raise Exception("There is no title! Please make sure at least one heading is the title! i.e. # heading")
 
-def generate_page(from_path: Path, template_path: Path, dest_path: Path, base_path: Path):
+def generate_page(from_path: Path, template_path: Path, dest_path: Path, base_path: str):
     """
     Creates the index.html page for the static site based off the given markdown files in the content folder
     and writes it to the proper folder for hosting
@@ -59,7 +59,7 @@ def copy_files(copy_dir: Path, write_dir: Path) -> None:
             dest_path.mkdir(parents=True, exist_ok=True)
             copy_files(path, dest_path)
 
-def generate_pages_recursive(dir_path_content: Path, template_path: Path, dest_dir_path: Path, base_path: Path):
+def generate_pages_recursive(dir_path_content: Path, template_path: Path, dest_dir_path: Path, base_path: str):
     for path in dir_path_content.iterdir():
         if path.is_file() and path.suffix == ".md":
             dest_file = dest_dir_path / (path.stem + ".html")

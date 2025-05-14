@@ -5,9 +5,9 @@ import sys
 
 def main():
     if len(sys.argv) > 1:
-        base_path = Path(sys.argv[1])
+        base_path = sys.argv[1]
     else:
-        base_path = Path("/")
+        base_path = "/"
 
     cwd = Path.cwd()
     docs_dir = cwd / "docs"
