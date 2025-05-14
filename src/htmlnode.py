@@ -6,7 +6,7 @@ class HTMLNode():
         self.children = children
         self.props = props
 
-    def to_html(self) -> str:
+    def to_html(self) -> str | None:
         """Simply returns the properly formatted HTML as a text string"""
         raise NotImplementedError()
 
@@ -24,14 +24,17 @@ class HTMLNode():
 
 class LeafNode(HTMLNode):
     """Class representing an html tag with no children. Value is simply the text to be enclosed in the tag: e.g. <p>this is text</p>"""
-    def __init__(self, tag: str, value: str, props=None):
+    def __init__(self, tag: str, value: str | None, props=None):
         super().__init__(tag, value, None, props)
 
-    def to_html(self) -> str:
-        if self.value is None:
-            raise ValueError("LeafNode must have a value")
+    def to_html(self) -> str | None:
+        if self.value is None and self.tag != "br":
+            raise ValueError("LeafNode must have a value, unless it is self-closing tag, i.e. <br>")
         if self.tag == None:
             return self.value
+
+        if self.tag == "br":
+            return f"<{self.tag}>"
 
         props_html = self.props_to_html()
         return f"<{self.tag}{props_html}>{self.value}</{self.tag}>"

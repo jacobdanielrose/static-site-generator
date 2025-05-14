@@ -1,7 +1,7 @@
 from enum import Enum
 from htmlnode import HTMLNode, ParentNode, LeafNode
 from inline import text_to_textnodes
-from textnode import text_node_to_html_node
+from textnode import TextNode, text_node_to_html_node
 
 class BlockType(Enum):
     """Represents the type of formatting required for a given block of markdown text"""
@@ -154,13 +154,15 @@ def create_paragraph_html_node(block: str) -> ParentNode:
 def create_quote_html_node(block: str) -> ParentNode:
     """Creates a blockquote HTMLNode"""
     lines = block.split("\n")
-    line_nodes = []
-    for i, line in enumerate(lines):
-        if i == 0:
-            html_nodes = text_to_children(line[line.index(">") + 1:].lstrip())
-            line_nodes.extend(html_nodes)
-        else:
-            html_nodes = text_to_children(line[line.index(">") + 1:])
-            line_nodes.extend(html_nodes)
-    p_node = ParentNode("p", line_nodes)
-    return ParentNode("blockquote", [p_node])
+    paragraphs = []
+
+    for line in lines:
+        # Extract content after '>'
+        content = line[line.index(">") + 1:].lstrip()
+        if content:
+            html_nodes = text_to_children(content)
+            paragraphs.extend(html_nodes)
+        elif not content:
+            paragraphs.append(LeafNode("br", None))
+
+    return ParentNode("blockquote", paragraphs)

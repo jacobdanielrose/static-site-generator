@@ -1,29 +1,30 @@
-import os
 import shutil
+from generate_page import copy_files, generate_pages_recursive
+from pathlib import Path
+
 
 def main():
-    copy_dir, write_dir = os.path.join(os.getcwd(),"static"), os.path.join(os.getcwd(),"public")
+    cwd = Path.cwd()
+    public_dir = cwd / "public"
+    static_dir = cwd / "static"
+    template_path = cwd / "template.html"
+    content_path = cwd / "content"
 
-    if os.path.exists(write_dir):
-        shutil.rmtree(write_dir)
-    os.mkdir(write_dir)
-    copy_files(copy_dir, write_dir)
-
-
-def copy_files(copy_dir, write_dir):
-    paths = os.listdir(copy_dir)
-    for path in paths:
-        full_path = os.path.join(copy_dir, path)
-        if os.path.isfile(full_path):
-            print(f"Copying {full_path}")
-            shutil.copy(full_path, write_dir)
+    # Clean up public directory
+    if public_dir.exists():
+        if public_dir.is_dir():
+            shutil.rmtree(public_dir)
         else:
-            full_write_dir = os.path.join(write_dir, path)
-            os.mkdir(full_write_dir)
-            copy_files(full_path, full_write_dir)
+            # in case a public file is created instead of a directory
+            public_dir.unlink()
+
+    # Create the public directory
+    public_dir.mkdir(parents=True, exist_ok=True)
 
 
+    copy_files(static_dir, public_dir)
 
+    generate_pages_recursive(content_path, template_path, public_dir)
 
 if __name__ == "__main__":
     main()
